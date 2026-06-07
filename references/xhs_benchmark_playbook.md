@@ -93,14 +93,19 @@ Use the user's own posts and backend data to decide whether to keep repeating it
 
 ## Weekly Automation
 
-For weekly candidate discovery:
+For weekly candidate discovery, prefer Codex thread automation:
 
-- Workflow: `.github/workflows/weekly-xhs-discovery.yml`
+- Schedule: Saturday 08:30 in Asia/Shanghai.
+- Input: public web search results for `site:xiaohongshu.com` queries.
+- Output: `memory/xhs_benchmark/candidates/YYYY-Www.md` and a candidate list in the Codex thread.
+- Confirmation: the user replies in Codex with `保留 1,3,7`.
+- Boundary: do not bypass login walls, captchas, rate limits, or platform restrictions.
+
+Optional API fallback:
+
 - Script: `scripts/xhs_benchmark_discover.py`
-- Schedule: Saturday 00:30 UTC, which is Saturday 08:30 in Asia/Shanghai.
-- Input: public search API results for `site:xiaohongshu.com` queries.
-- Output: `memory/xhs_benchmark/candidates/YYYY-Www.md` and Feishu push.
 - Search secrets: one of `BRAVE_SEARCH_API_KEY`, `BING_SEARCH_API_KEY`, or `SERPAPI_API_KEY`.
+- Use this only if the user wants fully detached GitHub/search-API discovery.
 
 For weekly benchmark synthesis:
 

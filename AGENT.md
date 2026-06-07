@@ -35,7 +35,13 @@ Daily upstream trend radar:
 
 Weekly Xiaohongshu candidate discovery:
 
-- Workflow: `.github/workflows/weekly-xhs-discovery.yml`
+- Primary mode: Codex thread automation.
+- Output: `memory/xhs_benchmark/candidates/`
+- Purpose: Codex searches public web results for Xiaohongshu-indexed candidates, then saves a candidate list for human review.
+- Confirmation: the user returns to Codex and says `保留 1,3,7`.
+
+Optional API fallback:
+
 - Script: `scripts/xhs_benchmark_discover.py`
 - Output: `memory/xhs_benchmark/candidates/`
 - Purpose: find public-search candidates from Xiaohongshu-indexed results.
@@ -50,8 +56,8 @@ Weekly Xiaohongshu benchmark synthesis:
 
 ## Candidate Confirmation Flow
 
-1. Weekly discovery pushes candidate links to Feishu and saves `memory/xhs_benchmark/candidates/YYYY-Www.md`.
-2. The user returns to Codex and says something like: `保留 1,3,7`.
+1. Weekly Codex discovery searches public web results and saves `memory/xhs_benchmark/candidates/YYYY-Www.md`.
+2. Codex posts the candidate list in this thread. The user says something like: `保留 1,3,7`.
 3. Run:
 
 ```bash
@@ -81,6 +87,8 @@ Optional:
 - `SERPAPI_API_KEY`
 - `XHS_SEARCH_PROVIDER`
 
+Search API secrets are optional because Codex thread automation can do candidate discovery directly. They are only needed if using the standalone GitHub/search-API fallback script.
+
 ## Content Generation Rule
 
 When generating Xiaohongshu content:
@@ -94,4 +102,4 @@ When generating Xiaohongshu content:
 
 ## Safety Boundary
 
-Do not bypass Xiaohongshu login walls, captchas, rate limits, or platform restrictions. The discovery script only uses public search API results. Full benchmark samples require user confirmation and, when needed, user-provided screenshots, links, or notes.
+Do not bypass Xiaohongshu login walls, captchas, rate limits, or platform restrictions. Discovery should use public search results and accessible snippets only. Full benchmark samples require user confirmation and, when needed, user-provided screenshots, links, or notes.
