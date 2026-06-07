@@ -93,6 +93,15 @@ Use the user's own posts and backend data to decide whether to keep repeating it
 
 ## Weekly Automation
 
+For weekly candidate discovery:
+
+- Workflow: `.github/workflows/weekly-xhs-discovery.yml`
+- Script: `scripts/xhs_benchmark_discover.py`
+- Schedule: Saturday 00:30 UTC, which is Saturday 08:30 in Asia/Shanghai.
+- Input: public search API results for `site:xiaohongshu.com` queries.
+- Output: `memory/xhs_benchmark/candidates/YYYY-Www.md` and Feishu push.
+- Search secrets: one of `BRAVE_SEARCH_API_KEY`, `BING_SEARCH_API_KEY`, or `SERPAPI_API_KEY`.
+
 For weekly benchmark synthesis:
 
 - Workflow: `.github/workflows/weekly-xhs-benchmark.yml`
@@ -102,3 +111,13 @@ For weekly benchmark synthesis:
 - Output: `memory/xhs_benchmark/reports/YYYY-Www.md` and Feishu push.
 
 This job does not scrape Xiaohongshu. It summarizes saved same-platform samples. If there are too few samples, it should say so clearly and avoid pretending that benchmark evidence exists.
+
+## Candidate Promotion
+
+Discovery candidates are not benchmark samples until the user confirms them.
+
+When the user says `保留 1,3,7`, run:
+
+`python3 scripts/xhs_benchmark_promote.py --week YYYY-Www --keep 1,3,7`
+
+This creates sample files under `memory/xhs_benchmark/samples/`. These promoted files still contain many `unknown` fields until the user provides screenshots, visible metrics, cover text, body structure, or comments.

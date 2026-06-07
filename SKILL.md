@@ -75,6 +75,8 @@ When asked to judge what works on Xiaohongshu itself:
 
 Weekly benchmark synthesis runs from saved samples only. It does not scrape Xiaohongshu directly; see [references/xhs_benchmark_playbook.md](references/xhs_benchmark_playbook.md).
 
+Weekly candidate discovery can search public-indexed Xiaohongshu results into `memory/xhs_benchmark/candidates/`. Candidates require user confirmation before they become benchmark samples.
+
 ## Account Content Direction
 
 The account's current proven direction is:

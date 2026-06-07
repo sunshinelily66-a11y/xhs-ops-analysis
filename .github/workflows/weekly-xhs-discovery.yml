@@ -1,0 +1,53 @@
+name: Weekly XHS Discovery
+
+on:
+  schedule:
+    # GitHub Actions cron is UTC. 00:30 UTC Saturday is 08:30 Saturday in Asia/Shanghai.
+    - cron: "30 0 * * 6"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly-xhs-discovery
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Discover Xiaohongshu benchmark candidates
+        env:
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+          FEISHU_BOT_SECRET: ${{ secrets.FEISHU_BOT_SECRET }}
+          BRAVE_SEARCH_API_KEY: ${{ secrets.BRAVE_SEARCH_API_KEY }}
+          BING_SEARCH_API_KEY: ${{ secrets.BING_SEARCH_API_KEY }}
+          SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
+          XHS_SEARCH_PROVIDER: ${{ secrets.XHS_SEARCH_PROVIDER }}
+          SAVE_REPORT: "1"
+          XHS_QUERY_LIMIT: "8"
+          XHS_RESULTS_PER_QUERY: "5"
+          XHS_MAX_CANDIDATES: "20"
+        run: python scripts/xhs_benchmark_discover.py
+
+      - name: Commit candidates
+        run: |
+          if [[ -n "$(git status --porcelain memory/xhs_benchmark/candidates)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add memory/xhs_benchmark/candidates/*.md
+            git commit -m "chore: add weekly xhs candidates"
+            git push
+          else
+            echo "No candidate changes to commit."
+          fi
