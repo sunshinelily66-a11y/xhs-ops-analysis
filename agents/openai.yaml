@@ -1,7 +1,7 @@
 interface:
-  display_name: "小红书运营分析"
-  short_description: "分析小红书导出表，给出内容、封面和标题优化建议"
-  default_prompt: "Use $xhs-ops-analysis to analyze my Xiaohongshu export and suggest better content, cover, and title strategies."
+  display_name: "小红书内容记忆与运营分析"
+  short_description: "分析小红书数据，维护账号记忆，并追踪 AI 工具观点趋势"
+  default_prompt: "Use $xhs-ops-analysis to analyze my Xiaohongshu data, update my account memory, observe AI-tool market signals, and suggest content ideas or drafts that fit my persona."
   brand_color: "#FF2442"
 
 policy:
