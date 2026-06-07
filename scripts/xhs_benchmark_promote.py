@@ -62,6 +62,8 @@ source_url: {url}
 platform: xiaohongshu
 topic: {query}
 author_or_account_type: unknown
+benchmark_weight: low_to_medium
+sample_role: tutorial_utility_reference
 ---
 
 # Xiaohongshu Benchmark Sample
@@ -77,6 +79,9 @@ author_or_account_type: unknown
 - search_snippet: {snippet}
 - candidate_reason: {reason}
 - candidate_index: {index}
+- benchmark_weight: low_to_medium
+- sample_role: tutorial_utility_reference
+- usage_note: 这类样本主要用于提炼教程标题、工具性承诺、步骤表达和低门槛包装；不要直接当作观点型爆款 benchmark。
 
 ## Benchmark Scores
 
@@ -90,15 +95,16 @@ author_or_account_type: unknown
 
 ## Reusable Pattern
 
-unknown
+- 教程型低门槛承诺：用“保姆级 / 零基础 / X 分钟 / 安装使用 / 第一个作品”降低进入门槛。
+- 工具性价值：强调学会一个具体工具或完成一个具体任务，而不是表达观点。
 
 ## Why It Matters For This Account
 
-unknown
+可作为后续教程类小红书的参考：如何把技术工具拆成小白能理解的入口、步骤和结果。但权重低于有完整封面、正文、互动数据、评论区反馈的同平台爆款样本。
 
 ## What Not To Copy
 
-unknown
+不要照搬纯教程口吻，也不要把教程标题误判为观点型内容规律。需要结合账号的真实体验、过程变化和个人复盘来改写。
 """
 
 

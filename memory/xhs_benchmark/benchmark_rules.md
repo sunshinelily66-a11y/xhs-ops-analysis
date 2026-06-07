@@ -25,6 +25,20 @@ This folder is the same-platform benchmark layer. It should answer:
 - Can the cover explain one result or conflict in one glance?
 - Does the note offer save value, not just a hot opinion?
 
+## Sample Weighting
+
+- `high`: Xiaohongshu-native sample with title, cover, body structure, visible metrics, and comment signals; strongly account-fit.
+- `medium`: Xiaohongshu-native sample with enough title/cover/body evidence but limited metrics or comments.
+- `low_to_medium`: Tutorial or utility sample found through shallow public references. Use it for title, tool promise, low-barrier explanation, and tutorial structure, but do not treat it as proof of viewpoint performance.
+- `low`: Weak reference, incomplete link, or external mirror without enough Xiaohongshu evidence.
+
+Tutorial-heavy samples can be useful for future how-to posts, but they should not dominate account strategy. They are best used to extract:
+
+- how the title lowers technical friction
+- what concrete tool outcome is promised
+- whether the topic can become a beginner-friendly sequence
+- what screenshots, steps, or before/after proof may be needed
+
 ## Avoid
 
 - Treating Twitter/X, HN, Reddit, or GitHub heat as Xiaohongshu proof.
