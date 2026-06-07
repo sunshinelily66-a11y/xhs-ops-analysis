@@ -1,0 +1,52 @@
+name: Weekly XHS Benchmark
+
+on:
+  schedule:
+    # GitHub Actions cron is UTC. 01:30 UTC Sunday is 09:30 Sunday in Asia/Shanghai.
+    - cron: "30 1 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly-xhs-benchmark
+  cancel-in-progress: false
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Synthesize Xiaohongshu benchmark
+        env:
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+          FEISHU_BOT_SECRET: ${{ secrets.FEISHU_BOT_SECRET }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          DEEPSEEK_BASE_URL: ${{ secrets.DEEPSEEK_BASE_URL }}
+          DEEPSEEK_MODEL: ${{ secrets.DEEPSEEK_MODEL }}
+          DEEPSEEK_MAX_TOKENS: "2600"
+          DEEPSEEK_TEMPERATURE: "0.35"
+          SAVE_REPORT: "1"
+          XHS_SAMPLE_LIMIT: "30"
+        run: python scripts/weekly_xhs_benchmark.py
+
+      - name: Commit report
+        run: |
+          if [[ -n "$(git status --porcelain memory/xhs_benchmark/reports)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add memory/xhs_benchmark/reports/*.md
+            git commit -m "chore: add weekly xhs benchmark"
+            git push
+          else
+            echo "No report changes to commit."
+          fi

@@ -73,6 +73,8 @@ When asked to judge what works on Xiaohongshu itself:
 4. Update `memory/xhs_benchmark/patterns.md` only when a pattern repeats across multiple Xiaohongshu samples.
 5. Promote a benchmark pattern into `memory/content_guidelines.md` only when it also fits the user's account profile or is confirmed by the user's own data.
 
+Weekly benchmark synthesis runs from saved samples only. It does not scrape Xiaohongshu directly; see [references/xhs_benchmark_playbook.md](references/xhs_benchmark_playbook.md).
+
 ## Account Content Direction
 
 The account's current proven direction is:

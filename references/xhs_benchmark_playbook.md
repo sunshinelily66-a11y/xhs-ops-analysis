@@ -90,3 +90,15 @@ Use market signals to discover what might be worth writing.
 Use Xiaohongshu benchmarks to decide how to package it.
 
 Use the user's own posts and backend data to decide whether to keep repeating it.
+
+## Weekly Automation
+
+For weekly benchmark synthesis:
+
+- Workflow: `.github/workflows/weekly-xhs-benchmark.yml`
+- Script: `scripts/weekly_xhs_benchmark.py`
+- Schedule: Sunday 01:30 UTC, which is Sunday 09:30 in Asia/Shanghai.
+- Input: saved files under `memory/xhs_benchmark/samples/`.
+- Output: `memory/xhs_benchmark/reports/YYYY-Www.md` and Feishu push.
+
+This job does not scrape Xiaohongshu. It summarizes saved same-platform samples. If there are too few samples, it should say so clearly and avoid pretending that benchmark evidence exists.
