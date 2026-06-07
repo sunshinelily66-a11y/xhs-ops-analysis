@@ -345,7 +345,11 @@ def selection_reason(signal: Signal) -> str:
 
 def select_report_signals(signals: list[Signal]) -> list[Signal]:
     hot = [signal for signal in signals if heat_gate_pass(signal)]
-    hot = sorted(hot, key=lambda signal: (heat_strength(signal), rank_signal(signal)), reverse=True)[:HEAT_SLOTS]
+    hot = sorted(
+        hot,
+        key=lambda signal: (rank_signal(signal), heat_strength(signal)),
+        reverse=True,
+    )[:HEAT_SLOTS]
 
     hot_keys = {signal.url or signal.title.lower() for signal in hot}
     interesting_pool = [
@@ -408,9 +412,10 @@ def topic_title(signal: Signal) -> str:
 
 def render_report(signals: list[Signal], now: dt.datetime) -> str:
     top = signals[: HEAT_SLOTS + INTERESTING_SLOTS]
+    hot = [signal for signal in top if heat_gate_pass(signal)][:HEAT_SLOTS]
+    interesting = [signal for signal in top if not heat_gate_pass(signal)][:INTERESTING_SLOTS]
     strong = [s for s in top if s.migration_value == "high"]
     experiments = [s for s in top if s.migration_value == "medium"]
-    skip = [s for s in top if s.migration_value == "low"]
 
     if not top:
         return textwrap.dedent(
@@ -424,52 +429,33 @@ def render_report(signals: list[Signal], now: dt.datetime) -> str:
     lines: list[str] = []
     lines.append(f"# AI 工具观点日更观察 - {now.date().isoformat()}")
     lines.append("")
-    lines.append("## 10 条洞察")
-    heat_count = sum(1 for signal in top if heat_gate_pass(signal))
-    interesting_count = len(top) - heat_count
-    lines.append(
-        f"> 目标结构：{HEAT_SLOTS} 条过热度门槛 + {INTERESTING_SLOTS} 条低热但值得观察；"
-        f"今日实际：{heat_count} 条 heat_gate + {interesting_count} 条 interesting/补位。"
-    )
+    lines.append("## 值得看的 8 条")
+    lines.append("> 规则：先过热度门槛，再看是否匹配账号定位；技术味太重的只保留一句可迁移角度。")
     lines.append("")
-    if len(top) < 10:
-        lines.append(f"> 今天只抓到 {len(top)} 条可用公开信号，先不硬凑满 10 条。")
+    if len(hot) < HEAT_SLOTS:
+        lines.append(f"> 今天只抓到 {len(hot)} 条过热度门槛的信号，先不硬凑满 8 条。")
         lines.append("")
-    for index, signal in enumerate(top, start=1):
+    for index, signal in enumerate(hot, start=1):
         lines.append(
             f"{index}. [{chinese_label(signal)}] {signal.title}\n"
             f"   - 来源：[{signal.source}]({signal.url})\n"
-            f"   - 入选理由：{selection_reason(signal)}\n"
-            f"   - 信号：{signal.signal_type}\n"
-            f"   - 一句话洞察：{xhs_angle(signal)}"
+            f"   - 热度：{signal.heat}\n"
+            f"   - 推荐理由：{xhs_angle(signal)}"
         )
 
-    lines.append("")
-    lines.append("## 共性速记")
-    if strong:
-        lines.append("- 今天更值得关注的是「具体工作流变化」而不是泛泛的 AI 能力讨论。")
-    if any("python" in f"{s.title} {s.summary}".lower() for s in top):
-        lines.append("- Python/学习类信号仍然适合用小白视角承接，重点是卡点和过程。")
-    if any(s.signal_type == "debate" for s in top):
-        lines.append("- 工具对比有讨论度，但直接站队风险较高，最好落到一个真实任务。")
-    lines.append("- 可以优先寻找「我用了之后具体变了什么」的第一人称入口。")
+    if interesting:
+        lines.append("")
+        lines.append("### 额外观察")
+        for signal in interesting:
+            lines.append(
+                f"- [{signal.title}]({signal.url})：热度未过门槛，但和账号方向贴合，可以观察。"
+            )
 
     lines.append("")
-    lines.append("## 最适合今天写的 3 个角度")
-    candidate_topics = (strong or experiments or top)[:3]
+    lines.append("## 匹配账号定位的内容建议")
+    candidate_topics = (strong or experiments or hot or top)[:5]
     for signal in candidate_topics:
         lines.append(f"- [{chinese_label(signal)}] {topic_title(signal)}")
-
-    lines.append("")
-    lines.append("## 不建议追的热点")
-    risky = [s for s in top if s.risk == "high"] or skip[:3]
-    for signal in risky[:3]:
-        lines.append(f"- {signal.title}：和你的人设/真实场景连接不够，容易写成泛 AI 观点。")
-
-    lines.append("")
-    lines.append("## 建议写入 market memory 的内容")
-    lines.append("- 继续观察 AI coding 工具是否从「能力展示」转向「普通人工作流改造」叙事。")
-    lines.append("- 工具对比内容只有绑定具体任务时，才适合迁移到这个账号。")
 
     lines.append("")
     return "\n".join(lines).strip() + "\n"
@@ -517,31 +503,28 @@ def build_deepseek_prompt(signals: list[Signal], now: dt.datetime) -> str:
         Python/自动化/创作者工作流的第一人称复盘。
 
         规则：
-        - 核心输出必须是 10 条洞察。不要只围绕 1 条观点展开。
-        - 目标结构是 8 条 heat_gate + 2 条 interesting；实际以每条 signal 的 selection_reason 和 passed_heat_gate 为准。
+        - 固定只输出两个主板块：1）值得看的 8 条；2）匹配账号定位的内容建议。
+        - 第一板块只使用 passed_heat_gate=true 的信号，最多 8 条。不要把低热 interesting 混进“值得看的 8 条”。
+        - 如果不足 8 条，直接说今天只抓到 N 条过热度门槛信号，不要硬凑。
+        - 每条高热信号必须同时写“热度数据”和“推荐理由”。热度看 heat 字段，推荐理由看是否匹配账号定位。
+        - 技术属性很强的内容不要深讲技术，只写它能迁移成什么小红书角度。
+        - 第二板块给 3-5 条内容建议，必须贴合账号定位：真实使用 AI 工具、纯小白技术学习、Codex/AI coding/Python/自动化/创作者工作流。
         - 请按输入顺序输出，不要擅自重排。
-        - 每条洞察必须来自不同或尽量不同的 signal，并且必须带来源 URL。
-        - 如果可用 signals 少于 10 条，输出实际数量，并明确“今天只抓到 N 条，不硬凑”。
         - 不要编造 signal 之外的事实、热度、来源或链接。
-        - 不要大段复述原文，每条只写 1 句观点 + 1 句为什么值得看/可写角度。
-        - 输出要短、有判断，像给账号主理人的每日情报卡片。
-        - 每条洞察标注：强推荐、可实验、跳过。
-        - 每条必须写“入选理由”：heat_gate 使用 heat 字段；interesting 说明为什么虽然低热但值得观察。
-        - 避免泛 AI 宏大叙事，优先转成“我用了之后发生了什么”的小红书角度。
-        - 如果 signals 很弱，要明确说今天不建议硬追。
+        - 每条必须带来源 URL。
+        - 输出要短，不要写长段分析。
+        - 不输出“不建议追的热点”。
+        - 不输出“market memory”板块。
 
         输出结构：
         # AI 工具观点日更观察 - {now.date().isoformat()}
-        ## 10 条洞察
+        ## 值得看的 8 条
         1. [强推荐/可实验/跳过] 洞察标题
            - 来源：[source](url)
-           - 入选理由：heat_gate / interesting 的具体理由
-           - 观点：一句话说明这个公开信号在说什么
-           - 可写角度：一句话说明它怎么迁移到小红书
-        ## 共性速记
-        ## 最适合今天写的 3 个角度
-        ## 不建议追的热点
-        ## 建议写入 market memory 的内容
+           - 热度：heat 字段
+           - 推荐理由：一句话说明为什么适合/不太适合这个账号
+        ## 匹配账号定位的内容建议
+        - [强推荐/可实验] 选题标题：一句话说明切入角度
 
         数据：
         {json.dumps(payload, ensure_ascii=False, indent=2)}

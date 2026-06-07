@@ -65,20 +65,18 @@ Low-value signals:
 
 Daily reports should be concise and useful:
 
-- Start with exactly 10 insights when at least 10 useful signals are available.
-- Use 8 heat-gated insights plus 2 interesting low-heat discoveries.
+- Use two main sections only:
+  - `值得看的 8 条`
+  - `匹配账号定位的内容建议`
+- The first section should include up to 8 heat-gated signals.
 - Heat gates:
   - Hacker News: 100+ points or 20+ comments.
   - Reddit: 50+ score or 20+ comments.
   - GitHub: 500+ stars or 50+ forks.
-- The 2 interesting slots can ignore heat, but must have strong account fit or early-signal value.
-- Each insight must include a source URL.
-- Each insight must state why it was selected: heat evidence or interesting reason.
-- Keep each insight short: one sentence for the observation and one sentence for the Xiaohongshu angle.
-- Translate each observation into a Xiaohongshu angle.
-- Include 3 possible titles or topics after the 10 insights.
-- Mark ideas as strong, experimental, or skip.
-- Recommend only durable memory updates; do not promote one-off noise into guidelines.
+- Each signal must include a source URL, heat evidence, and a short recommendation reason.
+- High-heat signals can still be too technical; do not over-explain technical details. Translate them into account-fit angles.
+- The second section should include 3 to 5 content ideas based on account fit.
+- Do not include `不建议追的热点` or `market memory` in the daily Feishu push.
 
 ## Memory Rules
 
@@ -89,6 +87,8 @@ Save daily reports under:
 If a pattern repeats across multiple days, add it to `memory/market/patterns.md`.
 
 If a pattern becomes important for the account's own publishing rules, suggest updating `memory/content_guidelines.md`.
+
+Market memory is a background archive, not a daily push section. It exists so repeated external patterns can be reviewed later and promoted into account guidelines only when they recur.
 
 ## Cloud Automation
 
