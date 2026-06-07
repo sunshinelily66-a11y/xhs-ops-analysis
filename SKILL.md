@@ -1,13 +1,13 @@
 ---
 name: xhs-ops-analysis
-description: Analyze Xiaohongshu backend export files, account content memory, and public AI-tool market signals; evaluate note performance, covers, titles, copywriting, persona fit, and produce Chinese Xiaohongshu content strategy, drafts, daily observation reports, guidelines, and reusable memory updates.
+description: Analyze Xiaohongshu backend export files, account content memory, Xiaohongshu benchmarks, and public AI-tool trend signals; evaluate note performance, covers, titles, copywriting, persona fit, and produce Chinese Xiaohongshu content strategy, drafts, daily observation reports, guidelines, and reusable memory updates.
 ---
 
 # 小红书运营分析与内容记忆
 
 ## Overview
 
-Use this skill when the user wants to analyze Xiaohongshu performance, review existing notes, improve titles/covers/copy, generate new note ideas or drafts, maintain account memory, or run recurring market observation for AI tools, AI coding, and creator workflows.
+Use this skill when the user wants to analyze Xiaohongshu performance, review existing notes, improve titles/covers/copy, generate new note ideas or drafts, maintain account memory, build Xiaohongshu platform benchmarks, or run recurring upstream market observation for AI tools, AI coding, and creator workflows.
 
 This skill is optimized for Chinese output, daily/weekly review, and long-term account consistency.
 
@@ -20,7 +20,8 @@ Choose the smallest useful set:
 - Using prior notes as examples: inspect [memory/posts/](memory/posts/) and load only relevant note memories.
 - Adding new note copy: use [memory/posts/_template.md](memory/posts/_template.md).
 - Memory maintenance rules: see [references/memory_playbook.md](references/memory_playbook.md).
-- Daily market observation: read [references/market_observation_playbook.md](references/market_observation_playbook.md), [memory/market/queries.md](memory/market/queries.md), and [memory/market/sources.md](memory/market/sources.md).
+- Daily upstream trend observation: read [references/market_observation_playbook.md](references/market_observation_playbook.md), [memory/market/queries.md](memory/market/queries.md), and [memory/market/sources.md](memory/market/sources.md).
+- Xiaohongshu benchmark work: read [references/xhs_benchmark_playbook.md](references/xhs_benchmark_playbook.md), [memory/xhs_benchmark/benchmark_rules.md](memory/xhs_benchmark/benchmark_rules.md), and relevant files in [memory/xhs_benchmark/samples/](memory/xhs_benchmark/samples/).
 
 If multiple exports are provided, compare them by default as separate cohorts, such as week-over-week, month-over-month, or top performers versus the rest.
 
@@ -50,17 +51,27 @@ When the user provides a note draft, published copy, or backend row:
 4. Extract reusable learnings: what worked, what did not, which title/cover/copy pattern it represents, and whether it fits the account persona.
 5. Update `memory/content_guidelines.md` only when a pattern repeats or the user explicitly confirms it as a rule.
 
-## Daily Market Observation Workflow
+## Daily Upstream Trend Observation Workflow
 
-When asked to observe external trends or run a daily push:
+When asked to observe external trends or run a daily push, treat market signals as upstream topic radar, not as Xiaohongshu proof:
 
 1. Search only public, accessible sources. Prefer search results, official blogs/changelogs, Hacker News, Reddit, GitHub, product communities, newsletters, and indexed public X/Twitter posts over direct scraping.
 2. Use the queries in `memory/market/queries.md`, expanding them only when relevant.
 3. Collect 8 to 20 useful signals, then deduplicate by event, product, and argument.
 4. Classify each signal as one of: product update, user pain, workflow pattern, debate, tutorial angle, beginner anxiety, creator opportunity, or weak/noisy signal.
-5. Translate market signals into Xiaohongshu-native ideas that fit the account profile.
+5. Translate market signals into possible Xiaohongshu-native ideas that fit the account profile, but do not treat them as validated Xiaohongshu benchmarks.
 6. Save durable observations only when useful; use `memory/market/reports/_template.md` for report shape.
 7. Do not store long copied posts. Store links, short summaries, observed patterns, and account-specific implications.
+
+## Xiaohongshu Benchmark Workflow
+
+When asked to judge what works on Xiaohongshu itself:
+
+1. Use Xiaohongshu-native evidence whenever possible: same-platform notes, titles, covers, visible interaction signals, comment questions, and the user's own backend data.
+2. Store competitor or reference samples in `memory/xhs_benchmark/samples/` using the sample template.
+3. Score each sample on title clickability, cover clarity, body structure, save/comment triggers, persona fit, technical accessibility, and transfer risk.
+4. Update `memory/xhs_benchmark/patterns.md` only when a pattern repeats across multiple Xiaohongshu samples.
+5. Promote a benchmark pattern into `memory/content_guidelines.md` only when it also fits the user's account profile or is confirmed by the user's own data.
 
 ## Account Content Direction
 
@@ -113,12 +124,16 @@ For content generation, use sections that fit the request, such as:
 
 For daily market observation, use:
 
-- 今日最值得注意的信号
-- 观点/争议共性
-- 对你账号有用的迁移角度
-- 今天可写的选题
-- 不建议追的热点
-- 建议写入 market memory 的内容
+- 值得看的 8 条
+- 匹配账号定位的内容建议
+
+For Xiaohongshu benchmark analysis, use:
+
+- 小红书样本概览
+- 可复用的平台模式
+- 和你账号的匹配度
+- 不适合直接模仿的风险
+- 可测试的标题/封面/正文方向
 
 ## Recommendation And Draft Style
 
@@ -137,10 +152,12 @@ Make the recommendation concrete and reusable:
 
 - Field mapping, scoring focus, and comparison logic: [references/analysis_playbook.md](references/analysis_playbook.md).
 - Memory schema and update rules: [references/memory_playbook.md](references/memory_playbook.md).
-- Daily market observation rules: [references/market_observation_playbook.md](references/market_observation_playbook.md).
+- Upstream trend observation rules: [references/market_observation_playbook.md](references/market_observation_playbook.md).
+- Xiaohongshu benchmark rules: [references/xhs_benchmark_playbook.md](references/xhs_benchmark_playbook.md).
 - Account persona and boundaries: [memory/account_profile.md](memory/account_profile.md).
 - Reusable content rules: [memory/content_guidelines.md](memory/content_guidelines.md).
-- Market queries and sources: [memory/market/queries.md](memory/market/queries.md), [memory/market/sources.md](memory/market/sources.md).
+- Upstream market queries and sources: [memory/market/queries.md](memory/market/queries.md), [memory/market/sources.md](memory/market/sources.md).
+- Xiaohongshu benchmark memory: [memory/xhs_benchmark/](memory/xhs_benchmark/).
 
 ## Retrospective Files
 

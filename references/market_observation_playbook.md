@@ -2,9 +2,9 @@
 
 ## Purpose
 
-Use this workflow to collect public market signals related to AI tools, AI coding, Codex, Claude Code, Cursor, Python learning, automation, frontend learning, and creator workflows, then convert those signals into Xiaohongshu content opportunities for this account.
+Use this workflow to collect upstream public market signals related to AI tools, AI coding, Codex, Claude Code, Cursor, Python learning, automation, frontend learning, and creator workflows, then convert those signals into possible Xiaohongshu content opportunities for this account.
 
-This is an observation system, not a bulk scraper. Prefer small, high-signal samples with links and concise summaries.
+This is an upstream trend radar, not a Xiaohongshu benchmark. Prefer small, high-signal samples with links and concise summaries.
 
 ## Source Rules
 
@@ -61,6 +61,19 @@ Low-value signals:
 - arguments that require expert authority the account does not claim
 - trend claims that cannot become a concrete note
 
+## Relationship To Xiaohongshu Benchmarks
+
+Market signals answer: "What is emerging upstream?"
+
+They do not answer:
+
+- whether a Xiaohongshu title will get clicks
+- whether a Xiaohongshu cover format works
+- whether Xiaohongshu users understand the topic
+- whether the user's account can convert the topic into saves, follows, or comments
+
+For those questions, use `references/xhs_benchmark_playbook.md` and `memory/xhs_benchmark/`.
+
 ## Report Rules
 
 Daily reports should be concise and useful:
@@ -88,7 +101,7 @@ If a pattern repeats across multiple days, add it to `memory/market/patterns.md`
 
 If a pattern becomes important for the account's own publishing rules, suggest updating `memory/content_guidelines.md`.
 
-Market memory is a background archive, not a daily push section. It exists so repeated external patterns can be reviewed later and promoted into account guidelines only when they recur.
+Market memory is a background upstream archive, not a daily push section and not the Xiaohongshu benchmark layer. It exists so repeated external patterns can be reviewed later, then cross-checked against Xiaohongshu benchmark samples or the user's own data before being promoted into account guidelines.
 
 ## Cloud Automation
 

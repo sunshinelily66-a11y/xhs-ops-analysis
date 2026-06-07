@@ -7,6 +7,8 @@ The `memory/` folder is the long-term source of truth for this Xiaohongshu accou
 - `memory/account_profile.md`: persona, audience, boundaries, and durable positioning.
 - `memory/content_guidelines.md`: reusable rules for topics, titles, covers, copy, and experiments.
 - `memory/posts/`: one file per note or draft, preserving original copy and performance learnings.
+- `memory/market/`: upstream trend radar from X/Twitter-indexed content, HN, Reddit, GitHub, official changelogs, and blogs. This is not Xiaohongshu benchmark evidence.
+- `memory/xhs_benchmark/`: Xiaohongshu-native reference samples and platform patterns. This is the benchmark layer for titles, covers, body structures, and same-platform user reactions.
 
 ## When To Update Memory
 
@@ -68,5 +70,18 @@ Before drafting new content:
 1. Read the account profile.
 2. Read content guidelines.
 3. Search `memory/posts/` for similar topics or formats.
-4. Reuse proven patterns, but avoid duplicating old titles or copy.
-5. If no relevant memory exists, state that the draft is based on current guidelines only.
+4. If the request is about a current AI-tool topic, optionally check `memory/market/patterns.md` or recent market reports for upstream trend context.
+5. If the request is about Xiaohongshu packaging, benchmark, or platform fit, check `memory/xhs_benchmark/patterns.md` and relevant samples.
+6. Reuse proven patterns, but avoid duplicating old titles or copy.
+7. If no relevant memory exists, state that the draft is based on current guidelines only.
+
+## Evidence Hierarchy
+
+Use this hierarchy when judging whether a content pattern is reliable:
+
+1. User's own Xiaohongshu backend performance.
+2. Xiaohongshu-native benchmark samples from similar topics or personas.
+3. Repeating upstream market signals.
+4. One-off external opinions or low-heat observations.
+
+Do not treat upstream market signals as proof that a Xiaohongshu title, cover, or copy structure will work.
