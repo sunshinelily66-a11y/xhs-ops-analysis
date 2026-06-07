@@ -16,7 +16,7 @@ This is an observation system, not a bulk scraper. Prefer small, high-signal sam
 
 ## Daily Collection Scope
 
-Target 8 to 20 signals per run:
+Target 20 to 40 candidate signals per run, then publish the best 10 insights:
 
 - 3 to 5 product or tool updates
 - 3 to 6 user opinions, debates, or pain points
@@ -65,9 +65,11 @@ Low-value signals:
 
 Daily reports should be concise and useful:
 
-- Start with 3 to 5 top observations.
+- Start with exactly 10 insights when at least 10 useful signals are available.
+- Each insight must include a source URL.
+- Keep each insight short: one sentence for the observation and one sentence for the Xiaohongshu angle.
 - Translate each observation into a Xiaohongshu angle.
-- Include 5 to 8 possible titles or topics.
+- Include 3 possible titles or topics after the 10 insights.
 - Mark ideas as strong, experimental, or skip.
 - Recommend only durable memory updates; do not promote one-off noise into guidelines.
 

@@ -36,8 +36,8 @@ jobs:
           DEEPSEEK_MAX_TOKENS: "2600"
           DEEPSEEK_TEMPERATURE: "0.4"
           SAVE_REPORT: "1"
-          MAX_SIGNALS: "20"
-          PER_QUERY: "3"
+          MAX_SIGNALS: "40"
+          PER_QUERY: "5"
         run: python scripts/daily_market_observer.py
 
       - name: Commit report

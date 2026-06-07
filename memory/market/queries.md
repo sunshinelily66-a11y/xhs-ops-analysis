@@ -13,6 +13,12 @@
 - AI automation personal workflow
 - AI tools creator workflow
 - AI coding agent frontend
+- AI agents tool use workflow
+- LLM agents tool calling
+- MCP agent workflow
+- agentic coding workflow
+- AI agent personal automation
+- AI agent creator workflow
 
 ## Core Chinese Queries
 
@@ -25,6 +31,10 @@
 - 小白 学 Python AI
 - 前端 学习 AI 工具
 - 小红书 AI 工具 Codex
+- AI Agent 使用方式
+- LLM Agent 工具调用
+- MCP AI Agent 工作流
+- Agentic Coding 小白
 
 ## Search Modifiers
 

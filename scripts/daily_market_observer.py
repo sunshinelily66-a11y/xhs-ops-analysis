@@ -118,7 +118,7 @@ def safe_fetch_json(url: str) -> dict | None:
         return None
 
 
-def read_queries(limit: int = 10) -> list[str]:
+def read_queries(limit: int = 14) -> list[str]:
     path = ROOT / "memory" / "market" / "queries.md"
     if not path.exists():
         return [
@@ -339,7 +339,7 @@ def topic_title(signal: Signal) -> str:
 
 
 def render_report(signals: list[Signal], now: dt.datetime) -> str:
-    top = sorted(signals, key=rank_signal, reverse=True)[:12]
+    top = sorted(signals, key=rank_signal, reverse=True)[:10]
     strong = [s for s in top if s.migration_value == "high"]
     experiments = [s for s in top if s.migration_value == "medium"]
     skip = [s for s in top if s.migration_value == "low"]
@@ -356,17 +356,20 @@ def render_report(signals: list[Signal], now: dt.datetime) -> str:
     lines: list[str] = []
     lines.append(f"# AI 工具观点日更观察 - {now.date().isoformat()}")
     lines.append("")
-    lines.append("## 今日最值得注意的信号")
-    for signal in top[:5]:
+    lines.append("## 10 条洞察")
+    if len(top) < 10:
+        lines.append(f"> 今天只抓到 {len(top)} 条可用公开信号，先不硬凑满 10 条。")
+        lines.append("")
+    for index, signal in enumerate(top, start=1):
         lines.append(
-            f"- [{chinese_label(signal)}] {signal.title} ({signal.source}, {signal.heat})\n"
-            f"  - 信号：{signal.signal_type}；相关度：{signal.relevance}；人设匹配：{signal.persona_fit}\n"
-            f"  - 迁移角度：{xhs_angle(signal)}\n"
-            f"  - 链接：{signal.url}"
+            f"{index}. [{chinese_label(signal)}] {signal.title}\n"
+            f"   - 来源：[{signal.source}]({signal.url})\n"
+            f"   - 信号：{signal.signal_type}；热度：{signal.heat}\n"
+            f"   - 一句话洞察：{xhs_angle(signal)}"
         )
 
     lines.append("")
-    lines.append("## 观点/争议共性")
+    lines.append("## 共性速记")
     if strong:
         lines.append("- 今天更值得关注的是「具体工作流变化」而不是泛泛的 AI 能力讨论。")
     if any("python" in f"{s.title} {s.summary}".lower() for s in top):
@@ -376,13 +379,9 @@ def render_report(signals: list[Signal], now: dt.datetime) -> str:
     lines.append("- 可以优先寻找「我用了之后具体变了什么」的第一人称入口。")
 
     lines.append("")
-    lines.append("## 对你账号有用的迁移角度")
-    for signal in (strong or experiments)[:5]:
-        lines.append(f"- {xhs_angle(signal)}")
-
-    lines.append("")
-    lines.append("## 今天可写的选题")
-    for signal in top[:8]:
+    lines.append("## 最适合今天写的 3 个角度")
+    candidate_topics = (strong or experiments or top)[:3]
+    for signal in candidate_topics:
         lines.append(f"- [{chinese_label(signal)}] {topic_title(signal)}")
 
     lines.append("")
@@ -397,16 +396,6 @@ def render_report(signals: list[Signal], now: dt.datetime) -> str:
     lines.append("- 工具对比内容只有绑定具体任务时，才适合迁移到这个账号。")
 
     lines.append("")
-    lines.append("## Source Notes")
-    lines.append("| Source | Signal | Relevance | Persona Fit | Migration Value | Risk |")
-    lines.append("|---|---|---|---|---|---|")
-    for signal in top:
-        safe_title = signal.title.replace("|", "/")
-        lines.append(
-            f"| {signal.source} | [{safe_title}]({signal.url}) | {signal.relevance} | "
-            f"{signal.persona_fit} | {signal.migration_value} | {signal.risk} |"
-        )
-
     return "\n".join(lines).strip() + "\n"
 
 
@@ -450,23 +439,27 @@ def build_deepseek_prompt(signals: list[Signal], now: dt.datetime) -> str:
         Python/自动化/创作者工作流的第一人称复盘。
 
         规则：
+        - 核心输出必须是 10 条洞察。不要只围绕 1 条观点展开。
+        - 每条洞察必须来自不同或尽量不同的 signal，并且必须带来源 URL。
+        - 如果可用 signals 少于 10 条，输出实际数量，并明确“今天只抓到 N 条，不硬凑”。
         - 不要编造 signal 之外的事实、热度、来源或链接。
-        - 不要大段复述原文，只提炼观点和可迁移角度。
-        - 输出要短、有判断，像给账号主理人的每日选题建议。
-        - 每个选题标注：强推荐、可实验、跳过。
+        - 不要大段复述原文，每条只写 1 句观点 + 1 句为什么值得看/可写角度。
+        - 输出要短、有判断，像给账号主理人的每日情报卡片。
+        - 每条洞察标注：强推荐、可实验、跳过。
         - 避免泛 AI 宏大叙事，优先转成“我用了之后发生了什么”的小红书角度。
-        - 必须保留重要来源链接。
         - 如果 signals 很弱，要明确说今天不建议硬追。
 
         输出结构：
         # AI 工具观点日更观察 - {now.date().isoformat()}
-        ## 今日最值得注意的信号
-        ## 观点/争议共性
-        ## 对你账号有用的迁移角度
-        ## 今天可写的选题
+        ## 10 条洞察
+        1. [强推荐/可实验/跳过] 洞察标题
+           - 来源：[source](url)
+           - 观点：一句话说明这个公开信号在说什么
+           - 可写角度：一句话说明它怎么迁移到小红书
+        ## 共性速记
+        ## 最适合今天写的 3 个角度
         ## 不建议追的热点
         ## 建议写入 market memory 的内容
-        ## Source Notes
 
         数据：
         {json.dumps(payload, ensure_ascii=False, indent=2)}
@@ -554,8 +547,8 @@ def save_report(report: str, report_dir: pathlib.Path, now: dt.datetime) -> path
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--max-signals", type=int, default=int(os.getenv("MAX_SIGNALS", "20")))
-    parser.add_argument("--per-query", type=int, default=int(os.getenv("PER_QUERY", "3")))
+    parser.add_argument("--max-signals", type=int, default=int(os.getenv("MAX_SIGNALS", "40")))
+    parser.add_argument("--per-query", type=int, default=int(os.getenv("PER_QUERY", "5")))
     parser.add_argument("--save-report", action="store_true", default=os.getenv("SAVE_REPORT", "1") == "1")
     parser.add_argument("--no-feishu", action="store_true")
     args = parser.parse_args()
