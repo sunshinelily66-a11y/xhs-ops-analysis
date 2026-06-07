@@ -16,7 +16,7 @@ This is an observation system, not a bulk scraper. Prefer small, high-signal sam
 
 ## Daily Collection Scope
 
-Target 20 to 40 candidate signals per run, then publish the best 10 insights:
+Target 20 to 40 candidate signals per run, then publish 10 insights:
 
 - 3 to 5 product or tool updates
 - 3 to 6 user opinions, debates, or pain points
@@ -66,7 +66,14 @@ Low-value signals:
 Daily reports should be concise and useful:
 
 - Start with exactly 10 insights when at least 10 useful signals are available.
+- Use 8 heat-gated insights plus 2 interesting low-heat discoveries.
+- Heat gates:
+  - Hacker News: 100+ points or 20+ comments.
+  - Reddit: 50+ score or 20+ comments.
+  - GitHub: 500+ stars or 50+ forks.
+- The 2 interesting slots can ignore heat, but must have strong account fit or early-signal value.
 - Each insight must include a source URL.
+- Each insight must state why it was selected: heat evidence or interesting reason.
 - Keep each insight short: one sentence for the observation and one sentence for the Xiaohongshu angle.
 - Translate each observation into a Xiaohongshu angle.
 - Include 3 possible titles or topics after the 10 insights.

@@ -69,6 +69,9 @@ RISK_KEYWORDS = {
     "benchmark",
 }
 
+HEAT_SLOTS = 8
+INTERESTING_SLOTS = 2
+
 
 @dataclass
 class Signal:
@@ -299,6 +302,71 @@ def dedupe(signals: list[Signal]) -> list[Signal]:
     return unique
 
 
+def heat_metrics(signal: Signal) -> tuple[int, int]:
+    numbers = [int(value) for value in re.findall(r"\d+", signal.heat)]
+    first = numbers[0] if len(numbers) >= 1 else 0
+    second = numbers[1] if len(numbers) >= 2 else 0
+    return first, second
+
+
+def heat_gate_pass(signal: Signal) -> bool:
+    first, second = heat_metrics(signal)
+    if signal.source == "Hacker News":
+        return first >= 100 or second >= 20
+    if signal.source == "Reddit":
+        return first >= 50 or second >= 20
+    if signal.source == "GitHub":
+        return first >= 500 or second >= 50
+    return first >= 50 or second >= 20
+
+
+def heat_strength(signal: Signal) -> int:
+    first, second = heat_metrics(signal)
+    if signal.source == "GitHub":
+        return first + second * 5
+    return first + second * 4
+
+
+def interesting_score(signal: Signal) -> tuple[int, int, int, int]:
+    level = {"high": 3, "medium": 2, "low": 1}
+    return (
+        level.get(signal.persona_fit, 0),
+        level.get(signal.relevance, 0),
+        level.get(signal.migration_value, 0),
+        heat_strength(signal),
+    )
+
+
+def selection_reason(signal: Signal) -> str:
+    if heat_gate_pass(signal):
+        return f"heat_gate: {signal.heat}"
+    return f"interesting: 热度未过门槛，但 persona_fit={signal.persona_fit}, relevance={signal.relevance}"
+
+
+def select_report_signals(signals: list[Signal]) -> list[Signal]:
+    hot = [signal for signal in signals if heat_gate_pass(signal)]
+    hot = sorted(hot, key=lambda signal: (heat_strength(signal), rank_signal(signal)), reverse=True)[:HEAT_SLOTS]
+
+    hot_keys = {signal.url or signal.title.lower() for signal in hot}
+    interesting_pool = [
+        signal
+        for signal in signals
+        if (signal.url or signal.title.lower()) not in hot_keys and signal.risk != "high"
+    ]
+    interesting = sorted(interesting_pool, key=interesting_score, reverse=True)[:INTERESTING_SLOTS]
+
+    selected = hot + interesting
+    if len(selected) < HEAT_SLOTS + INTERESTING_SLOTS:
+        selected_keys = {signal.url or signal.title.lower() for signal in selected}
+        fillers = [
+            signal
+            for signal in sorted(signals, key=rank_signal, reverse=True)
+            if (signal.url or signal.title.lower()) not in selected_keys
+        ]
+        selected.extend(fillers[: HEAT_SLOTS + INTERESTING_SLOTS - len(selected)])
+    return selected[: HEAT_SLOTS + INTERESTING_SLOTS]
+
+
 def rank_signal(signal: Signal) -> tuple[int, int, int]:
     level = {"high": 3, "medium": 2, "low": 1}
     return (
@@ -339,7 +407,7 @@ def topic_title(signal: Signal) -> str:
 
 
 def render_report(signals: list[Signal], now: dt.datetime) -> str:
-    top = sorted(signals, key=rank_signal, reverse=True)[:10]
+    top = signals[: HEAT_SLOTS + INTERESTING_SLOTS]
     strong = [s for s in top if s.migration_value == "high"]
     experiments = [s for s in top if s.migration_value == "medium"]
     skip = [s for s in top if s.migration_value == "low"]
@@ -357,6 +425,13 @@ def render_report(signals: list[Signal], now: dt.datetime) -> str:
     lines.append(f"# AI 工具观点日更观察 - {now.date().isoformat()}")
     lines.append("")
     lines.append("## 10 条洞察")
+    heat_count = sum(1 for signal in top if heat_gate_pass(signal))
+    interesting_count = len(top) - heat_count
+    lines.append(
+        f"> 目标结构：{HEAT_SLOTS} 条过热度门槛 + {INTERESTING_SLOTS} 条低热但值得观察；"
+        f"今日实际：{heat_count} 条 heat_gate + {interesting_count} 条 interesting/补位。"
+    )
+    lines.append("")
     if len(top) < 10:
         lines.append(f"> 今天只抓到 {len(top)} 条可用公开信号，先不硬凑满 10 条。")
         lines.append("")
@@ -364,7 +439,8 @@ def render_report(signals: list[Signal], now: dt.datetime) -> str:
         lines.append(
             f"{index}. [{chinese_label(signal)}] {signal.title}\n"
             f"   - 来源：[{signal.source}]({signal.url})\n"
-            f"   - 信号：{signal.signal_type}；热度：{signal.heat}\n"
+            f"   - 入选理由：{selection_reason(signal)}\n"
+            f"   - 信号：{signal.signal_type}\n"
             f"   - 一句话洞察：{xhs_angle(signal)}"
         )
 
@@ -415,6 +491,8 @@ def signals_for_llm(signals: list[Signal]) -> list[dict]:
                 "persona_fit": signal.persona_fit,
                 "migration_value": signal.migration_value,
                 "risk": signal.risk,
+                "selection_reason": selection_reason(signal),
+                "passed_heat_gate": heat_gate_pass(signal),
                 "suggested_xhs_angle": xhs_angle(signal),
             }
         )
@@ -440,12 +518,15 @@ def build_deepseek_prompt(signals: list[Signal], now: dt.datetime) -> str:
 
         规则：
         - 核心输出必须是 10 条洞察。不要只围绕 1 条观点展开。
+        - 目标结构是 8 条 heat_gate + 2 条 interesting；实际以每条 signal 的 selection_reason 和 passed_heat_gate 为准。
+        - 请按输入顺序输出，不要擅自重排。
         - 每条洞察必须来自不同或尽量不同的 signal，并且必须带来源 URL。
         - 如果可用 signals 少于 10 条，输出实际数量，并明确“今天只抓到 N 条，不硬凑”。
         - 不要编造 signal 之外的事实、热度、来源或链接。
         - 不要大段复述原文，每条只写 1 句观点 + 1 句为什么值得看/可写角度。
         - 输出要短、有判断，像给账号主理人的每日情报卡片。
         - 每条洞察标注：强推荐、可实验、跳过。
+        - 每条必须写“入选理由”：heat_gate 使用 heat 字段；interesting 说明为什么虽然低热但值得观察。
         - 避免泛 AI 宏大叙事，优先转成“我用了之后发生了什么”的小红书角度。
         - 如果 signals 很弱，要明确说今天不建议硬追。
 
@@ -454,6 +535,7 @@ def build_deepseek_prompt(signals: list[Signal], now: dt.datetime) -> str:
         ## 10 条洞察
         1. [强推荐/可实验/跳过] 洞察标题
            - 来源：[source](url)
+           - 入选理由：heat_gate / interesting 的具体理由
            - 观点：一句话说明这个公开信号在说什么
            - 可写角度：一句话说明它怎么迁移到小红书
         ## 共性速记
@@ -560,9 +642,10 @@ def main() -> int:
     signals.extend(collect_reddit(queries, args.per_query))
     signals.extend(collect_github(queries, args.per_query))
 
-    signals = sorted(dedupe(signals), key=rank_signal, reverse=True)[: args.max_signals]
-    fallback_report = render_report(signals, now)
-    report = enhance_report_with_deepseek(signals, now, fallback_report)
+    candidate_signals = sorted(dedupe(signals), key=rank_signal, reverse=True)[: args.max_signals]
+    report_signals = select_report_signals(candidate_signals)
+    fallback_report = render_report(report_signals, now)
+    report = enhance_report_with_deepseek(report_signals, now, fallback_report)
 
     if args.save_report:
         path = save_report(report, DEFAULT_REPORT_DIR, now)
